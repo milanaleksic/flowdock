@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
+	"bytes"
+	"encoding/json"
 )
 
 // flowdockGET is a convenience function for performing
@@ -34,33 +35,57 @@ func flowdockGET(apiKey, url string) ([]byte, error) {
 	return body, nil
 }
 
-func pushMessage(flowAPIKey, message, sender string, threadID int64) error {
-	v := url.Values{}
-	v.Set("content", message)
-	v.Set("external_user_name", sender)
-	if threadID != 0 {
-		v.Set("message_id", string(threadID))
+type flowMessage struct {
+	Event    string `json:"event"`
+	Content  string `json:"content"`
+	ThreadID string `json:"thread_id"`
+	Flow     string `json:"flow"`
+}
+
+func pushMessage(apiKey, flowAPIKey, message, threadID string) error {
+	v := flowMessage{
+		Event: "message",
+		Content: message,
+		ThreadID: threadID,
+		Flow: flowAPIKey,
 	}
+	client := http.Client{}
+	pushURL := fmt.Sprintf("https://api.flowdock.com/messages")
 
-	pushURL := fmt.Sprintf("https://api.flowdock.com/v1/messages/chat/%s", flowAPIKey)
-	resp, err := http.PostForm(pushURL, v)
-	defer resp.Body.Close()
-
+	jsonStr, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
+	req, err := http.NewRequest("POST", pushURL, bytes.NewBuffer(jsonStr))
+	if err != nil {
+		return err
+	}
+	req.SetBasicAuth(apiKey, "BATMAN")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	fmt.Printf("req = %s, resp = %+v, err = %v", jsonStr, resp, err)
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("\nresp = %s", string(data))
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // PushMessageToFlowWithKey can uses the Flowdock "Push" API to start
 // a new thread in a flow using any pseudonym the client wishes. Useful
 // for e.g implementing bots.
-func PushMessageToFlowWithKey(flowAPIKey, message, sender string) error {
-	return pushMessage(flowAPIKey, message, sender, 0)
+func PushMessageToFlowWithKey(apiKey, flowAPIKey, message string) error {
+	return pushMessage(apiKey, flowAPIKey, message, "")
 }
 
 // ReplyToThreadInFlowWithKey is similar to PushMessageToFlowWithKey
 // except that it is used for replies rather than starting a new thread.
-func ReplyToThreadInFlowWithKey(flowAPIKey, message, sender string, threadID int64) error {
-	return pushMessage(flowAPIKey, message, sender, threadID)
+func ReplyToThreadInFlowWithKey(apiKey, flowAPIKey, message, threadID string) error {
+	return pushMessage(apiKey, flowAPIKey, message, threadID)
 }

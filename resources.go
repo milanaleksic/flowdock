@@ -86,6 +86,6 @@ func getFlows(apiKey string) ([]Flow, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	//fmt.Printf("flows: %+v", flows)
 	return flows, nil
 }

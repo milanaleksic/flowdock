@@ -101,6 +101,7 @@ type MessageEvent struct {
 	Timestamp   int64    `json:"sent"`
 	Attachments []string `json:"attachments"`
 	UserID      string   `json:"user"`
+	ThreadID    string   `json:"thread_id"`
 }
 
 // A UserIsTypingEvent is sent when a user
