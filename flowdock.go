@@ -63,12 +63,12 @@ func pushMessage(apiKey, flowAPIKey, message, threadID string) error {
 	req.SetBasicAuth(apiKey, "BATMAN")
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
-	fmt.Printf("req = %s, resp = %+v, err = %v", jsonStr, resp, err)
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("\nresp = %s", string(data))
+	//fmt.Printf("req = %s, resp = %+v, err = %v", jsonStr, resp, err)
+	//data, err := ioutil.ReadAll(resp.Body)
+	//if err != nil {
+	//	return err
+	//}
+	//fmt.Printf("\nresp = %s", string(data))
 	defer resp.Body.Close()
 	if err != nil {
 		return err
