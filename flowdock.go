@@ -42,7 +42,7 @@ type flowMessage struct {
 	Flow     string `json:"flow"`
 }
 
-func pushMessage(apiKey, flowAPIKey, message, threadID string) error {
+func pushMessage(apiKey, flowAPIKey, message, threadID, flowTokenForPosting string) error {
 	v := flowMessage{
 		Event: "message",
 		Content: message,
@@ -50,7 +50,7 @@ func pushMessage(apiKey, flowAPIKey, message, threadID string) error {
 		Flow: flowAPIKey,
 	}
 	client := http.Client{}
-	pushURL := fmt.Sprintf("https://api.flowdock.com/messages")
+	pushURL := fmt.Sprintf("https://api.flowdock.com/messages?flow_token=%s", flowTokenForPosting)
 
 	jsonStr, err := json.Marshal(v)
 	if err != nil {
@@ -81,11 +81,11 @@ func pushMessage(apiKey, flowAPIKey, message, threadID string) error {
 // a new thread in a flow using any pseudonym the client wishes. Useful
 // for e.g implementing bots.
 func PushMessageToFlowWithKey(apiKey, flowAPIKey, message string) error {
-	return pushMessage(apiKey, flowAPIKey, message, "")
+	return pushMessage(apiKey, flowAPIKey, message, "", "")
 }
 
 // ReplyToThreadInFlowWithKey is similar to PushMessageToFlowWithKey
 // except that it is used for replies rather than starting a new thread.
-func ReplyToThreadInFlowWithKey(apiKey, flowAPIKey, message, threadID string) error {
-	return pushMessage(apiKey, flowAPIKey, message, threadID)
+func ReplyToThreadInFlowWithKey(apiKey, flowAPIKey, message, threadID, flowTokenForPosting string) error {
+	return pushMessage(apiKey, flowAPIKey, message, threadID, flowTokenForPosting)
 }
