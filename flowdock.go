@@ -38,7 +38,7 @@ func flowdockGET(apiKey, url string) ([]byte, error) {
 type flowMessage struct {
 	Event    string `json:"event"`
 	Content  string `json:"content"`
-	ThreadID string `json:"thread_id"`
+	ThreadID string `json:"thread_id,omitempty"`
 	Flow     string `json:"flow"`
 }
 
