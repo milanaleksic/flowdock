@@ -16,6 +16,7 @@ type Event interface{}
 func unmarshalFlowdockJSONEvent(event []byte) (Event, error) {
 	var m map[string]interface{}
 	err := json.Unmarshal(event, &m)
+	//log.Printf("Received bytes: %v\n", string(event[:]))
 	if err != nil {
 		return nil, err
 	}
@@ -23,6 +24,14 @@ func unmarshalFlowdockJSONEvent(event []byte) (Event, error) {
 	eventType := m["event"].(string)
 
 	switch {
+	case eventType == "mail":
+		e := MailEvent{}
+		err = json.Unmarshal(event, &e)
+		if err != nil {
+			log.Println("MailEvent parsing error")
+			return nil, err
+		}
+		return e, nil
 	case eventType == "message":
 		e := MessageEvent{}
 		err = json.Unmarshal(event, &e)
@@ -91,6 +100,28 @@ func unmarshalFlowdockJSONEvent(event []byte) (Event, error) {
 	}
 }
 
+// A MailEvent is is an UNDOCUMENTED event type that Jenkins integration sends
+// to the Inbox of the flow
+type MailEvent struct {
+	Application string   `json:"app"`
+	Attachments []string `json:"attachments"`
+	Timestamp   int64    `json:"sent"`
+	Tags        []string `json:"tags"`
+	UserID      string   `json:"user"`
+	ID          int64    `json:"id"`
+	Flow        string   `json:"flow"`
+	Content     struct {
+			    Content string `json:"content"`
+			    Source  string `json:"source"`
+			    Link    string `json:"link"`
+			    Subject string `json:"subject"`
+		    } `json:"content"`
+	From        struct {
+			    Address string `json:"address"`
+			    Name    string `json:"name"`
+		    } `json:"from"`
+}
+
 // A MessageEvent is sent when a user starts
 // a new thread in a flow.
 type MessageEvent struct {
@@ -133,13 +164,13 @@ func (e *StatusEvent) String() string {
 // on an item in the team inbox or on an existing
 // message thread
 type CommentEvent struct {
-	Tags    []string `json:"tags"`
-	ID      int64    `json:"id"`
-	Flow    string   `json:"flow"`
-	Content struct {
-		Title string `json:"title"`
-		Text  string `json:"text"`
-	} `json:"content"`
+	Tags        []string `json:"tags"`
+	ID          int64    `json:"id"`
+	Flow        string   `json:"flow"`
+	Content     struct {
+			    Title string `json:"title"`
+			    Text  string `json:"text"`
+		    } `json:"content"`
 	Timestamp   int64    `json:"sent"`
 	Attachments []string `json:"attachments"`
 	UserID      string   `json:"user"`
@@ -159,14 +190,14 @@ type ActionEvent struct {
 
 // A TagChangeEvent is sent when the tags of a message are changed.
 type TagChangeEvent struct {
-	Tags    []string `json:"tags"`
-	ID      int64    `json:"id"`
-	Flow    string   `json:"flow"`
-	Content struct {
-		Added     []string `json:"add"`
-		Removed   []string `json:"remove"`
-		MessageID int64    `json:"message"`
-	} `json:"content"`
+	Tags        []string `json:"tags"`
+	ID          int64    `json:"id"`
+	Flow        string   `json:"flow"`
+	Content     struct {
+			    Added     []string `json:"add"`
+			    Removed   []string `json:"remove"`
+			    MessageID int64    `json:"message"`
+		    } `json:"content"`
 	Timestamp   int64    `json:"sent"`
 	Attachments []string `json:"attachments"`
 	UserID      string   `json:"user"`
@@ -175,13 +206,13 @@ type TagChangeEvent struct {
 // A MessageEditEvent is sent when the the content of a message is changed.
 // Only messages of types 'message' and 'comment' can be edited.
 type MessageEditEvent struct {
-	Tags    []string `json:"tags"`
-	ID      int64    `json:"id"`
-	Flow    string   `json:"flow"`
-	Content struct {
-		UpdatedMessage string `json:"updated_content"`
-		MessageID      int64  `json:"message"`
-	} `json:"content"`
+	Tags        []string `json:"tags"`
+	ID          int64    `json:"id"`
+	Flow        string   `json:"flow"`
+	Content     struct {
+			    UpdatedMessage string `json:"updated_content"`
+			    MessageID      int64  `json:"message"`
+		    } `json:"content"`
 	Timestamp   int64    `json:"sent"`
 	Attachments []string `json:"attachments"`
 	UserID      string   `json:"user"`
@@ -189,12 +220,12 @@ type MessageEditEvent struct {
 
 // A UserActivityEvent is sent periodically by each user to let others know that they are online.
 type UserActivityEvent struct {
-	Tags    []string `json:"tags"`
-	ID      int64    `json:"id"`
-	Flow    string   `json:"flow"`
-	Content struct {
-		LastActivityTimestamp int64 `json:"last_activity"`
-	} `json:"content"`
+	Tags        []string `json:"tags"`
+	ID          int64    `json:"id"`
+	Flow        string   `json:"flow"`
+	Content     struct {
+			    LastActivityTimestamp int64 `json:"last_activity"`
+		    } `json:"content"`
 	Timestamp   int64    `json:"sent"`
 	Attachments []string `json:"attachments"`
 	UserID      string   `json:"user"`
