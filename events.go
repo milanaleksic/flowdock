@@ -116,7 +116,7 @@ type MailEvent struct {
 			    Link    string `json:"link"`
 			    Subject string `json:"subject"`
 		    } `json:"content"`
-	From        struct {
+	From        []struct {
 			    Address string `json:"address"`
 			    Name    string `json:"name"`
 		    } `json:"from"`
