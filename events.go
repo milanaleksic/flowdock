@@ -115,11 +115,11 @@ type MailEvent struct {
 			    Source  string `json:"source"`
 			    Link    string `json:"link"`
 			    Subject string `json:"subject"`
+			    From        []struct {
+				    Address string `json:"address"`
+				    Name    string `json:"name"`
+			    } `json:"from"`
 		    } `json:"content"`
-	From        []struct {
-			    Address string `json:"address"`
-			    Name    string `json:"name"`
-		    } `json:"from"`
 }
 
 // A MessageEvent is sent when a user starts
