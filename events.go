@@ -111,15 +111,23 @@ type MailEvent struct {
 	ID          int64    `json:"id"`
 	Flow        string   `json:"flow"`
 	Content     struct {
-			    Content string `json:"content"`
-			    Source  string `json:"source"`
-			    Link    string `json:"link"`
-			    Subject string `json:"subject"`
-			    From        []struct {
-				    Address string `json:"address"`
-				    Name    string `json:"name"`
-			    } `json:"from"`
-		    } `json:"content"`
+		Content string `json:"content"`
+		Source  string `json:"source"`
+		Link    string `json:"link"`
+		Subject string `json:"subject"`
+		From    []struct {
+			Address string `json:"address"`
+			Name    string `json:"name"`
+		} `json:"from"`
+	} `json:"content"`
+}
+
+// MentionEvent is what seems to be used in undocumented API
+// that the Flowdock app downloads from the server
+type MentionEvent struct {
+	ID      string       `json:"id"`
+	Message MessageEvent `json:"message"`
+	Unread  bool         `json:"unread"`
 }
 
 // A MessageEvent is sent when a user starts
@@ -164,13 +172,13 @@ func (e *StatusEvent) String() string {
 // on an item in the team inbox or on an existing
 // message thread
 type CommentEvent struct {
-	Tags        []string `json:"tags"`
-	ID          int64    `json:"id"`
-	Flow        string   `json:"flow"`
-	Content     struct {
-			    Title string `json:"title"`
-			    Text  string `json:"text"`
-		    } `json:"content"`
+	Tags    []string `json:"tags"`
+	ID      int64    `json:"id"`
+	Flow    string   `json:"flow"`
+	Content struct {
+		Title string `json:"title"`
+		Text  string `json:"text"`
+	} `json:"content"`
 	Timestamp   int64    `json:"sent"`
 	Attachments []string `json:"attachments"`
 	UserID      string   `json:"user"`
@@ -190,14 +198,14 @@ type ActionEvent struct {
 
 // A TagChangeEvent is sent when the tags of a message are changed.
 type TagChangeEvent struct {
-	Tags        []string `json:"tags"`
-	ID          int64    `json:"id"`
-	Flow        string   `json:"flow"`
-	Content     struct {
-			    Added     []string `json:"add"`
-			    Removed   []string `json:"remove"`
-			    MessageID int64    `json:"message"`
-		    } `json:"content"`
+	Tags    []string `json:"tags"`
+	ID      int64    `json:"id"`
+	Flow    string   `json:"flow"`
+	Content struct {
+		Added     []string `json:"add"`
+		Removed   []string `json:"remove"`
+		MessageID int64    `json:"message"`
+	} `json:"content"`
 	Timestamp   int64    `json:"sent"`
 	Attachments []string `json:"attachments"`
 	UserID      string   `json:"user"`
@@ -206,13 +214,13 @@ type TagChangeEvent struct {
 // A MessageEditEvent is sent when the the content of a message is changed.
 // Only messages of types 'message' and 'comment' can be edited.
 type MessageEditEvent struct {
-	Tags        []string `json:"tags"`
-	ID          int64    `json:"id"`
-	Flow        string   `json:"flow"`
-	Content     struct {
-			    UpdatedMessage string `json:"updated_content"`
-			    MessageID      int64  `json:"message"`
-		    } `json:"content"`
+	Tags    []string `json:"tags"`
+	ID      int64    `json:"id"`
+	Flow    string   `json:"flow"`
+	Content struct {
+		UpdatedMessage string `json:"updated_content"`
+		MessageID      int64  `json:"message"`
+	} `json:"content"`
 	Timestamp   int64    `json:"sent"`
 	Attachments []string `json:"attachments"`
 	UserID      string   `json:"user"`
@@ -220,12 +228,12 @@ type MessageEditEvent struct {
 
 // A UserActivityEvent is sent periodically by each user to let others know that they are online.
 type UserActivityEvent struct {
-	Tags        []string `json:"tags"`
-	ID          int64    `json:"id"`
-	Flow        string   `json:"flow"`
-	Content     struct {
-			    LastActivityTimestamp int64 `json:"last_activity"`
-		    } `json:"content"`
+	Tags    []string `json:"tags"`
+	ID      int64    `json:"id"`
+	Flow    string   `json:"flow"`
+	Content struct {
+		LastActivityTimestamp int64 `json:"last_activity"`
+	} `json:"content"`
 	Timestamp   int64    `json:"sent"`
 	Attachments []string `json:"attachments"`
 	UserID      string   `json:"user"`

@@ -4,11 +4,11 @@
 package flowdock
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"bytes"
-	"encoding/json"
 )
 
 // flowdockGET is a convenience function for performing
@@ -44,10 +44,10 @@ type flowMessage struct {
 
 func pushMessage(flowAPIKey, message, threadID, flowTokenForPosting string) error {
 	v := flowMessage{
-		Event: "message",
-		Content: message,
+		Event:    "message",
+		Content:  message,
 		ThreadID: threadID,
-		Flow: flowAPIKey,
+		Flow:     flowAPIKey,
 	}
 	client := http.Client{}
 	pushURL := fmt.Sprintf("https://api.flowdock.com/messages?flow_token=%s", flowTokenForPosting)

@@ -1,9 +1,11 @@
 package flowdock
 
 import (
-	"github.com/njern/httpstream"
+	"encoding/json"
 	"log"
 	"sync"
+
+	"github.com/njern/httpstream"
 )
 
 const (
@@ -155,4 +157,20 @@ func flowStreamURL(c *Client, flows []Flow) string {
 		}
 	}
 	return flowURL
+}
+
+// GetMyMentions fetches all my mentions from Flowdock API using UNOFFICIAL api
+func (c *Client) GetMyMentions() ([]MentionEvent, error) {
+	body, err := flowdockGET(c.apiKey, "https://www.flowdock.com/rest/notifications/mentions")
+	if err != nil {
+		return nil, err
+	}
+
+	var mentions []MentionEvent
+	err = json.Unmarshal(body, &mentions)
+	if err != nil {
+		return nil, err
+	}
+	//fmt.Printf("flows: %+v", flows)
+	return mentions, nil
 }
