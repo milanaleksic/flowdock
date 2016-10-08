@@ -2,6 +2,7 @@ package flowdock
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"sync"
 
@@ -160,8 +161,8 @@ func flowStreamURL(c *Client, flows []Flow) string {
 }
 
 // GetMyMentions fetches all my mentions from Flowdock API using UNOFFICIAL api
-func (c *Client) GetMyMentions() ([]MentionEvent, error) {
-	body, err := flowdockGET(c.apiKey, "https://www.flowdock.com/rest/notifications/mentions")
+func (c *Client) GetMyMentions(limit int) ([]MentionEvent, error) {
+	body, err := flowdockGET(c.apiKey, fmt.Sprintf("https://www.flowdock.com/rest/notifications/mentions?limit=%d", limit))
 	if err != nil {
 		return nil, err
 	}
