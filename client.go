@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"sync"
@@ -202,12 +201,12 @@ func (c *Client) RespondToFlow(flow, thread, msg string) error {
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 
-	fmt.Printf("req = %s, resp = %+v, err = %v", jsonStr, resp, err)
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("\nresp = %s", string(data))
+	// fmt.Printf("req = %s, resp = %+v, err = %v", jsonStr, resp, err)
+	// data, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return err
+	// }
+	// fmt.Printf("\nresp = %s", string(data))
 
 	defer resp.Body.Close()
 	if err != nil {
