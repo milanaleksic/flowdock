@@ -1,9 +1,12 @@
 package flowdock
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"sync"
 
 	"github.com/njern/httpstream"
@@ -174,4 +177,42 @@ func (c *Client) GetMyMentions(limit int) ([]MentionEvent, error) {
 	}
 	//fmt.Printf("flows: %+v", flows)
 	return mentions, nil
+}
+
+// RespondToFlow allows to send a message to a certain flow/thread
+func (c *Client) RespondToFlow(flow, thread, msg string) error {
+	v := flowMessage{
+		Event:    "message",
+		Content:  msg,
+		ThreadID: thread,
+		Flow:     flow,
+	}
+	client := http.Client{}
+	pushURL := fmt.Sprintf("https://api.flowdock.com/messages")
+
+	jsonStr, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("POST", pushURL, bytes.NewBuffer(jsonStr))
+	if err != nil {
+		return err
+	}
+	req.SetBasicAuth(c.apiKey, "BATMAN")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+
+	fmt.Printf("req = %s, resp = %+v, err = %v", jsonStr, resp, err)
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("\nresp = %s", string(data))
+
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
