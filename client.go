@@ -174,7 +174,21 @@ func (c *Client) GetMyMentions(limit int) ([]MentionEvent, error) {
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Printf("flows: %+v", flows)
+	return mentions, nil
+}
+
+// GetMyUnreadPrivateMessages fetches all private unread messages from Flowdock API using UNOFFICIAL api
+func (c *Client) GetMyUnreadPrivateMessages() ([]PrivateMessageEvent, error) {
+	body, err := flowdockGET(c.apiKey, "https://www.flowdock.com/rest/notifications/unreads")
+	if err != nil {
+		return nil, err
+	}
+
+	var mentions []PrivateMessageEvent
+	err = json.Unmarshal(body, &mentions)
+	if err != nil {
+		return nil, err
+	}
 	return mentions, nil
 }
 

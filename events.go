@@ -130,6 +130,14 @@ type MentionEvent struct {
 	Unread  bool         `json:"unread"`
 }
 
+// PrivateMessageEvent is what seems to be used in undocumented API
+// that the Flowdock app downloads from the server
+type PrivateMessageEvent struct {
+	ID      string       `json:"id"`
+	Message MessageEvent `json:"message"`
+	Unread  bool         `json:"unread"`
+}
+
 // A MessageEvent is sent when a user starts
 // a new thread in a flow.
 type MessageEvent struct {
