@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"sync"
 
+	"io/ioutil"
+
 	"github.com/njern/httpstream"
 )
 
@@ -192,16 +194,14 @@ func (c *Client) GetMyUnreadPrivateMessages() ([]PrivateMessageEvent, error) {
 	return mentions, nil
 }
 
-// RespondToFlow allows to send a message to a certain flow/thread
-func (c *Client) RespondToFlow(flow, thread, msg string) error {
+// RespondToPerson allows to send a private message
+func (c *Client) RespondToPerson(userID int64, msg string) error {
 	v := flowMessage{
-		Event:    "message",
-		Content:  msg,
-		ThreadID: thread,
-		Flow:     flow,
+		Event:   "message",
+		Content: msg,
 	}
 	client := http.Client{}
-	pushURL := fmt.Sprintf("https://api.flowdock.com/messages")
+	pushURL := fmt.Sprintf("https://api.flowdock.com/private/%d/messages", userID)
 
 	jsonStr, err := json.Marshal(v)
 	if err != nil {
@@ -215,12 +215,54 @@ func (c *Client) RespondToFlow(flow, thread, msg string) error {
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 
-	// fmt.Printf("req = %s, resp = %+v, err = %v", jsonStr, resp, err)
-	// data, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	return err
-	// }
-	// fmt.Printf("\nresp = %s", string(data))
+	if resp.StatusCode > 299 && resp.StatusCode < 200 {
+		fmt.Printf("req = %s, resp = %+v, err = %v", jsonStr, resp, err)
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("\nresp = %s", string(data))
+	}
+
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RespondToFlow allows to send a message to a certain flow/thread
+func (c *Client) RespondToFlow(flow, thread, msg string) error {
+	v := flowMessage{
+		Event:    "message",
+		Content:  msg,
+		ThreadID: thread,
+		Flow:     flow,
+	}
+	client := http.Client{}
+	pushURL := "https://api.flowdock.com/messages"
+
+	jsonStr, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("POST", pushURL, bytes.NewBuffer(jsonStr))
+	if err != nil {
+		return err
+	}
+	req.SetBasicAuth(c.apiKey, "BATMAN")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+
+	if resp.StatusCode > 299 && resp.StatusCode < 200 {
+		fmt.Printf("req = %s, resp = %+v, err = %v", jsonStr, resp, err)
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("\nresp = %s", string(data))
+	}
 
 	defer resp.Body.Close()
 	if err != nil {
